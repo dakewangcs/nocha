@@ -1,0 +1,62 @@
+Hi this is a API test framework that I've been working on. So far it works pretty well when come to test our products.
+
+This API testing tool is mocha + supertest + chai (with mochawesome report).
+This tool can significantly reduce the amount of javascript code you need to write for people not familiar with that language:
+
+From mocha test cases like:
+describe( ...
+it("description", async function () {
+	const response = await request
+		.post("/fpc/v1/api/customers/dashboard/fazwidgets/".concat(topWidgetTypeData_info[0], "/"))
+		.send({
+			"ordering": topWidgetTypeData_info[1],
+			"siteId": 0,
+			"frequency": "0 00:05:00",
+			"customDate1": "",
+			"customDate2": "",
+			"lastN": 0,
+			"size": 10,
+			"tid": []
+			})
+	const expect_res = dashboard_response_json.get_widget_info_without_cookies;
+	expect(response.status).to.equal(401);
+	expect(response.body).to.be.deep.equal(expect_res);
+});)
+
+To:
+{
+	description: "Security > Hosts: able to get hosts info",
+	url: "/resource-api/v2/security/hosts",
+	status: 200,
+	data: hosts_data.get_host_data,
+	method: async function () {
+		let res = await test_utils.url_get(this.url, null, this.status);
+		test_utils.only_compare_keys(res.body, this.data);
+	}
+}
+    
+
+
+
+All testers need to do is:
+1. do some configurations in config.js, please see config.js for the detailed explanation.
+2. creating a *.suite.js under TCs directory, and format for the testcases are in the example.suite.js.
+
+and the rest is running commands:
+> npm install
+> npx mocha nocha.js --reporter mochawesome
+
+Notes: 
+1. everyone is welcome to use those functions from test_utils.js ("const test_utils = require("./APITEST").test_utils").
+	For every request GET, PUT, POST, etc., I wrote a corresponded url_<METHOD>, which not only return the response from server but also compare the expected and the actual results. But still you can use requests methods and chai expect in "method" section of your *.suite.js.
+2. For suite.js, these are must have:
+	Key "TestSuite"
+	"testcases" section
+		and whenever there's a testcase defined, you should also defined:
+			description: for each testcase,
+			url: info required for api testcase description,
+			status: info required for api testcase description,
+			method: where the test case logic atually goes,
+		(Please check the example.suite.js for reference.)
+
+Please feel free to reach out with any issue of this tool.
